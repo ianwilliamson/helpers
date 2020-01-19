@@ -7,7 +7,7 @@ label_str = {'lower': ascii_lowercase,
              'upper': ascii_uppercase}
 
 def apply_panel_labels(axs,
-                       xy=[(-50, 0)], 
+                       xy=(-25, 0), 
                        size='medium', 
                        weight='bold', 
                        case='lower',
@@ -15,34 +15,42 @@ def apply_panel_labels(axs,
                        va='top', 
                        prefix='', 
                        postfix='', 
-                       color=['k'], 
-                       color_bg=None):
-    """Applies panel labels (e.g. a, b, c, ... ) to matplotlib axes objects in order
-    
-    Most of the function arguments should be self-explanatory. Some are described in
-    more detail below:
-    axs               - List of the axis objects to label.
-    xy                - Specifies the offset, in points, between the top left corner
-                        of the axis and the label.
-                        If len(xy) == 1, then the same offset is used for all panels.
-                        Alternatively, len(xy) == len(axs), for control over the 
-                        offset for each individual panel.
-    ha, va            - Horizontal / vertical alignment of the label.
-    prefix, postfix   - Text to include before / after the label, e.g. prefix='('
-                        and postifx=')'.
-    color             - Color of the label text. Same len characteristics as xy.
+                       color='k', 
+                       bg_color=None,
+                       bg_alpha=0.5):
+    """Apply axis labels to a list of matplotlib axes objects (e.g. a, b, c, ...)
+    Parameters:
+    axs      - The list of matplotlib axis objects to label. Axes are labeled in the order
+               that they are supplied.
+    xy       - Tuple specififying the offset points, (xpts, ypts) between the top left corner
+               of the axis and the label. This can also be a list of tuples to specify the 
+               offset for each axis individually, in which case len(xy) == len(axs)
+    size     - Font size of the labels, e.g. 9, 10, 'small, 'medium', etc.
+    weight   - Font weight of the labels, e.g. 'normal', 'bold'
+    case     - Case of the label characters, either 'upper' or 'lower'
+    ha       - Horizontal alignment of the labels, defaults to 'right'
+    va       - Vertical alignment of the labels, defaults to 'top'
+    prefix   - Text to include before each label, e.g. prefix='('
+    postfix  - Text to include after each label, e.g. postfix=')'
+    color    - Color of the label text, defaults to 'black'. This can also be a list to specify
+               the label color each axis individually, in which case len(color) == len(axs)
+    bg_color - If specificed, draw a background box for the label with this color
+    bg_alpha - Alpha transparency paramater for the background box, default is 0.5
     """
 
-    assert len(xy) == len(axs) or len(xy) == 1, "Either the lengths of `axs` and `xy` must match or `xy` must be of length 1"
-    assert len(color) == len(axs) or len(color) == 1, "Either the lengths of `axs` and `color` must match or `color` must be of length 1"
-    assert case in ['lower', 'upper'], "Case must be either 'lower' or 'upper'"
+    if type(xy) is not list: xy = [xy]
+    if type(color) is not list: color = [color]
 
-    if color_bg is not None:
-        bbox_props = dict(boxstyle="round,pad=0.1", fc=color_bg, ec="none", alpha=0.9)
+    assert len(xy) == len(axs) or len(xy) == 1, 'The lengths of `axs` and `xy` must match or `xy` must be of length 1'
+    assert len(color) == len(axs) or len(color) == 1, 'The lengths of `axs` and `color` must match or `color` must be of length 1'
+    assert case in ['lower', 'upper'], '`case` must be either `lower` or `upper`'
+
+    if bg_color is not None:
+        bbox_props = dict(boxstyle='round', fc=bg_color, ec='none', alpha=bg_alpha)
     else:
         bbox_props = None
     
-    # If using latex we need to manually insert the \textbf command
+    # If using the latex backend we need to manually insert the \textbf command
     if rcParams['text.usetex'] and weight == 'bold':
         prefix  = '\\textbf{' + prefix
         postfix = postfix + '}'
